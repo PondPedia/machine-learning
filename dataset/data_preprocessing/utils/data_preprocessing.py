@@ -36,11 +36,14 @@ def column_preprocessing(column_name: str, df):
     return df
 
 def filter_column(column_name: str, df) :
-    df.loc[:, column_name[0]] *= (df.loc[:, column_name[0]].between(20, 35)) # Temperature
-    df.loc[:, column_name[1]] *= (df.loc[:, column_name[1]].between(0, 10)) # Dissolved Oxygen
-    df.loc[:, column_name[2]] *= (df.loc[:, column_name[2]].between(1, 14)) # pH
-    df.loc[:, column_name[3]] *= (df.loc[:, column_name[3]].between(0, 1)) # Ammonia
-    df.loc[:, column_name[4]] *= (df.loc[:, column_name[4]].between(0, 20)) # Nitrate
+    df.loc[:, column_name[0]] = df.loc[:, column_name[0]].apply(lambda x: x if 20 <= x <= 35 else None) # Temperature
+    df.loc[:, column_name[1]] = df.loc[:, column_name[1]].apply(lambda x: x if 0 <= x <= 10 else None) # Dissolved Oxygen
+    df.loc[:, column_name[2]] = df.loc[:, column_name[2]].apply(lambda x: x if 1 <= x <= 14 else None) # pH
+    df.loc[:, column_name[3]] = df.loc[:, column_name[3]].apply(lambda x: x if 0 <= x <= 1 else None) # Ammonia
+    df.loc[:, column_name[4]] = df.loc[:, column_name[4]].apply(lambda x: x if 0 <= x <= 20 else None) # Nitrate
+
+    return df
+
 
     return df
 
