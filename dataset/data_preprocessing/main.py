@@ -4,7 +4,7 @@ from utils import data_preprocessing as dp
 import pandas as pd
 
 if __name__ == '__main__':
-    pond = 8
+    pond = 6
 
     # Uncomment this if you want to clean the data
     df = pd.read_csv(f"../raw/IoTPond{pond}.csv", index_col=0, parse_dates=True)
