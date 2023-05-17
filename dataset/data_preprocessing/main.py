@@ -6,7 +6,7 @@ import numpy as np
 
 if __name__ == '__main__':
     pond = 2
-    df = pd.read_csv(f"../raw/IoTPond{pond}.csv", index_col=0)
+    df = pd.read_csv(f"../raw/IoTPond{pond}.csv", index_col=0, parse_dates=True)
     df = dp.drop_column(dp.search_columns(df), df)
     df = dp.column_preprocessing(dp.search_columns(df), df)
     df = dp.filter_column(dp.search_columns(df), df)
