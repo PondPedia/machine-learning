@@ -1,3 +1,6 @@
+import pandas as pd
+import numpy as np
+
 def search_columns(df) -> list:
     """
     Returns a list of columns from the given dataframe that contain any of the keywords bellow. The function takes a pandas dataframe as its only parameter and returns a list of strings.
@@ -44,9 +47,6 @@ def filter_column(column_name: str, df) :
 
     return df
 
-
-    return df
-
 def rename_column(df):
     """
     Renames the columns of a given pandas DataFrame object. The function modifies the DataFrame object in place.
@@ -71,3 +71,35 @@ def rename_column(df):
                        df.columns[7]: 'fish_weight_g'}, inplace=True)
 
     return df
+
+import numpy as np
+import pandas as pd
+
+def wrap_it_up(pond: int, df: pd.DataFrame) -> None:
+    """
+    Preprocesses and splits a DataFrame into 4 parts, saving each part as a CSV file.
+
+    Args:
+        pond (int): The pond number associated with the DataFrame.
+        df (pd.DataFrame): The DataFrame to preprocess and split.
+    Returns:
+        None
+    """
+    # Drop unnecessary columns
+    df = drop_column(search_columns(df), df)
+
+    # Preprocess columns
+    df = column_preprocessing(search_columns(df), df)
+
+    # Filter rows
+    df = filter_column(search_columns(df), df)
+
+    # Rename columns
+    df = rename_column(df)
+
+    # Split DataFrame into 4 parts and save each part as a CSV file
+    df_split = np.array_split(df, 4)
+    for i, split in enumerate(df_split):
+        split.to_csv(f"../processed/cleaned_IoTPond{pond}_part{i+1}.csv", index=True)
+
+    print('DONE')
