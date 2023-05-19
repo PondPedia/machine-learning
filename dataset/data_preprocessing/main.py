@@ -5,20 +5,20 @@ import pandas as pd
 
 if __name__ == '__main__':
     pond = 1
+    split_amount = 1
 
     # Uncomment this if you want to clean the data
-    df = pd.read_csv(f"../raw/IoTPond{pond}.csv", index_col=0, parse_dates=True)
-    dp.wrap_it_up(pond, df, split_amount=1)
+    # df = pd.read_csv(f"../raw/IoTPond{pond}.csv", index_col=0, parse_dates=True)
+    # dp.wrap_it_up(pond, df, split_amount=split_amount)
 
     # Uncomment this if you want to change the interval of time into an hour
-    # df_list = []
-    # for i in range(1, 5):
-    #     df = pd.read_csv(f'../processed/filled_IoTPond{pond}_part{i}.csv',index_col=0, parse_dates=[0])
-    #     df_list.append(df)
-    # df = pd.concat(df_list)
-
-    # df = df.resample('1H').mean() # Specify The Interval
-    # df.to_csv(f'../processed/one_hour_IoTPond{pond}.csv', index=True)
+    df_list = []
+    for i in range(1, split_amount+1):
+        df = pd.read_csv(f'../processed/IoTPond{pond}/filled_IoTPond{pond}_part{i}.csv',index_col=0, parse_dates=[0])
+        df_list.append(df)
+    df = pd.concat(df_list)
+    df = df.resample('1H').mean() # Specify The Interval
+    df.to_csv(f'../processed/IoTPond{pond}/one_hour_IoTPond{pond}.csv', index=True)
 
 """
     - (Done) Change the name of the column
