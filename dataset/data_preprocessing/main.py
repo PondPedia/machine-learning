@@ -4,11 +4,11 @@ from utils import data_preprocessing as dp
 import pandas as pd
 
 if __name__ == '__main__':
-    pond = 6
+    pond = 1
 
     # Uncomment this if you want to clean the data
     df = pd.read_csv(f"../raw/IoTPond{pond}.csv", index_col=0, parse_dates=True)
-    dp.wrap_it_up(pond, df)
+    dp.wrap_it_up(pond, df, split_amount=1)
 
     # Uncomment this if you want to change the interval of time into an hour
     # df_list = []

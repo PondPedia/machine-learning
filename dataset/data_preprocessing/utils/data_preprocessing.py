@@ -1,6 +1,7 @@
 import numpy as np
+import pandas as pd
 
-def search_columns(df) -> dict:
+def search_columns(df: pd.DataFrame) -> dict:
     """
     Returns a dictionary with keywords as keys and the corresponding indices of columns from the given dataframe as values. The function takes a pandas dataframe as its only parameter and returns a dictionary.
     """
@@ -10,7 +11,7 @@ def search_columns(df) -> dict:
 
     return column_dict
 
-def drop_column(column_dict: dict, df):
+def drop_column(column_dict: dict, df: pd.DataFrame) -> pd.DataFrame:
     """
     This function drops a column from a pandas dataframe given its name and returns the updated dataframe.
 ``
@@ -27,7 +28,7 @@ def drop_column(column_dict: dict, df):
     return df
 
 
-def column_preprocessing(column_dict: dict, df):
+def column_preprocessing(column_dict: dict, df: pd.DataFrame) -> pd.DataFrame:
     """
     Apply a preprocessing step to a given column of a pandas DataFrame. 
 
@@ -42,7 +43,7 @@ def column_preprocessing(column_dict: dict, df):
 
     return df
 
-def filter_column(column_dict: dict, df) :
+def filter_column(column_dict: dict, df: pd.DataFrame) -> pd.DataFrame :
     df.iloc[:, column_dict['temp']] = df.iloc[:, column_dict['temp']].apply(lambda x: x if 20 <= x <= 35 else None) # Temperature
     df.iloc[:, column_dict['oxygen']] = df.iloc[:, column_dict['oxygen']].apply(lambda x: x if 0 <= x <= 10 else None) # Dissolved Oxygen
     df.iloc[:, column_dict['ph']] = df.iloc[:, column_dict['ph']].apply(lambda x: x if 1 <= x <= 14 else None) # pH
@@ -52,16 +53,16 @@ def filter_column(column_dict: dict, df) :
     return df
 
 
-def rename_column(column_dict: dict, df):
+def rename_column(column_dict: dict, df: pd.DataFrame) -> pd.DataFrame:
     df.rename(columns={df.columns[v]: k for k, v in column_dict.items() if v is not None}, inplace=True)
 
     return df
 
 import os
 
-def wrap_it_up(pond: int, df) -> None:
+def wrap_it_up(pond: int, df: pd.DataFrame, split_amount: int) -> None:
     """
-    Preprocesses and splits a DataFrame into 4 parts, saving each part as a CSV file.
+    Preprocesses and splits a DataFrame into parts, saving each part as a CSV file.
 
     Args:
         pond (int): The pond that you want to choose.
@@ -86,8 +87,8 @@ def wrap_it_up(pond: int, df) -> None:
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    # Split DataFrame into 4 parts and save each part as a CSV file
-    df_split = np.array_split(df, 4)
+    # Split DataFrame into parts and save each part as a CSV file
+    df_split = np.array_split(df, split_amount)
     for i, split in enumerate(df_split):
         split.to_csv(f"{directory}/cleaned_IoTPond{pond}_part{i+1}.csv", index=True)
 
