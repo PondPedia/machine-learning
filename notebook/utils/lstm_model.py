@@ -13,7 +13,7 @@ class LSTMModel:
         self._num_neurons: tuple = None
         self._num_layers: int = None
         self._hyperparameters: tuple = None
-        self._dataset: pd.DataFrame = None
+        self._dataset: tuple = None
         self._model: Sequential = None
 
     def generate_sequences(self, data, n_steps):
@@ -43,7 +43,6 @@ class LSTMModel:
     def num_layers(self, value: tuple) -> None:
         self._num_layers = value
 
-    # Hyperparameters (activation_function, loss, optimizer, BATCH_SIZE, BUFFER_SIZE, future_steps, feature_columns)
     @property
     def hyperparameters(self) -> tuple:
         return self._hyperparameters
@@ -54,7 +53,7 @@ class LSTMModel:
 
     # Dataset
     @property
-    def dataset(self) -> pd.DataFrame:
+    def dataset(self) -> tuple:
         return self._dataset
 
     @dataset.setter
@@ -85,26 +84,33 @@ class LSTMModel:
 
         self._dataset = train_data, val_data
 
+    # Model
     def model(self):
-        model = Sequential()
-
         # Add LSTM layers
         model = Sequential()
         model.add(
-            LSTM(
-                self.num_neurons[0],
-                input_shape=(self._hyperparameters[-2], self._hyperparameters[-1]),
-                return_sequences=True,
+            Bidirectional(
+                LSTM(
+                    self.num_neurons[0], 
+                    activation=self._hyperparameters[0], 
+                    return_sequences=True
+                ), input_shape=(self._hyperparameters[-2], self._hyperparameters[-1])
             )
+
         )
 
         for layer in range(1, self.num_layers):
             model.add(
-                LSTM(
-                    self.num_neurons[layer],
-                    return_sequences=True if layer < self.num_layers - 1 else False,
+                Bidirectional(
+                    LSTM(
+                        self.num_neurons[layer], 
+                        activation=self._hyperparameters[0], 
+                        return_sequences=True if layer < self.num_layers - 1 else False,
+                    )
                 )
             )
+        
+        model.add(Dense(self._hyperparameters[-1], activation='linear'))
 
         model.compile(
             loss=self._hyperparameters[1], optimizer=self._hyperparameters[2]
