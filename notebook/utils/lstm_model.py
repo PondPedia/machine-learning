@@ -14,6 +14,7 @@ class LSTMModel:
         self._num_layers: int = None
         self._hyperparameters: tuple = None
         self._dataset: tuple = None
+        self._dropout_regularization: tuple = None
         self._model: Sequential = None
 
     def generate_sequences(self, data, n_steps):
@@ -43,6 +44,7 @@ class LSTMModel:
     def num_layers(self, value: tuple) -> None:
         self._num_layers = value
 
+    # Hyperparameters
     @property
     def hyperparameters(self) -> tuple:
         return self._hyperparameters
@@ -50,6 +52,15 @@ class LSTMModel:
     @hyperparameters.setter
     def hyperparameters(self, value: tuple) -> None:
         self._hyperparameters = value
+
+    # Dropout Regularization
+    @property
+    def dropout_regularization(self):
+        return self._dropout_regularization
+
+    @dropout_regularization.setter
+    def dropout_regularization(self, value: tuple) -> None:
+        self._dropout_regularization = value
 
     # Dataset
     @property
@@ -96,8 +107,10 @@ class LSTMModel:
                     return_sequences=True
                 ), input_shape=(self._hyperparameters[-2], self._hyperparameters[-1])
             )
-
         )
+
+        if self.dropout_regularization:
+            model.add(Dropout(self.dropout_regularization[0]))
 
         for layer in range(1, self.num_layers):
             model.add(
@@ -109,6 +122,8 @@ class LSTMModel:
                     )
                 )
             )
+            if self.dropout_regularization:
+                model.add(Dropout(self.dropout_regularization[layer]))
         
         model.add(Dense(self._hyperparameters[-1], activation='linear'))
 
