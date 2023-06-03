@@ -1,11 +1,9 @@
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Bidirectional, Dense, Dropout
-
 
 class LSTMModel:
     # Set it to None for greater flexibility
@@ -132,3 +130,18 @@ class LSTMModel:
         )
 
         self._model = model
+
+    def inspect(self, summary: bool = True, get_weights: bool = False, plot_model: bool = False):
+        if summary:
+            print(self._model.summary())
+        if plot_model:
+            print(tf.keras.utils.plot_model(self._model, show_shapes=True))
+        if get_weights:
+            print(self._model.get_weights())
+        
+
+    def train(self):
+        self._model.fit(self._dataset[0], validation_data=self._dataset[1], epochs=self._hyperparameters[4], verbose=1)
+
+    def evaluate(self):
+        print(self._model.evaluate(self._dataset[1], verbose=0))
