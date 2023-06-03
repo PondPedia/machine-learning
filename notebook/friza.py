@@ -1,7 +1,8 @@
 import pandas as pd
 from utils.lstm_model import LSTMModel
 
-dataset = pd.read_csv('/home/archsus/Documents/pond_pedia/dataset/processed/IoTPond6/6_hours_IoTPond1.csv', index_col=0, parse_dates=True)
+dataset = pd.read_csv('/home/archsus/Documents/pond_pedia/dataset/processed/IoTPond1/6_hours_IoTPond1.csv', index_col=0, parse_dates=True)
+test_dataset = pd.read_csv('/home/archsus/Documents/pond_pedia/dataset/processed/IoTPond2/6_hours_IoTPond2.csv', index_col=0, parse_dates=True)
 
 friza: LSTMModel = LSTMModel()
 
@@ -16,8 +17,9 @@ friza.dataset = (dataset, 0.8,)
 
 friza.model()
 friza.inspect()
-# friza.train()
-# friza.evaluate()
+friza.train()
+friza.predict(test_dataset)
+
 
 # print(friza._model.summary())
 # print(friza._d`ropout_regularization)

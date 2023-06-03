@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 
 from sklearn.preprocessing import MinMaxScaler
@@ -14,11 +15,12 @@ class LSTMModel:
         self._dataset: tuple = None
         self._dropout_regularization: tuple = None
         self._model: Sequential = None
+        self._scale = None
 
     def generate_sequences(self, data, n_steps):
         X, y = [], []
         for i in range(len(data) - n_steps):
-            X.append(data[i : i + n_steps, :])
+            X.append(data[i : i + n_steps, :]) # Exclude length & weight predict?
             y.append(data[i + n_steps, :])
         X, y = np.array(X), np.array(y)
 
@@ -91,6 +93,7 @@ class LSTMModel:
         val_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
         val_data = val_data.batch(self._hyperparameters[3])
 
+        self._scale = scaler
         self._dataset = train_data, val_data
 
     # Model
@@ -143,5 +146,16 @@ class LSTMModel:
     def train(self):
         self._model.fit(self._dataset[0], validation_data=self._dataset[1], epochs=self._hyperparameters[4], verbose=1)
 
-    def evaluate(self):
-        print(self._model.evaluate(self._dataset[1], verbose=0))
+    # Model Prediction
+    def predict(self, dataset: pd.DataFrame):
+        X_test = self._scale.transform(dataset.iloc[:, :])
+        X_test, y_test = self.generate_sequences(X_test, self._hyperparameters[-2])
+
+        test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
+        test_data = test_data.batch(self._hyperparameters[3])
+
+        y_pred = self._model.predict(test_data, verbose=1)
+        y_pred = self._scale.inverse_transform(y_pred)
+
+        print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
+        print('y_pred = {}'.format(y_pred[1, :]))
