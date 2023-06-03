@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
+from matplotlib import pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Bidirectional, Dense, Dropout
@@ -146,8 +147,7 @@ class LSTMModel:
     def train(self):
         self._model.fit(self._dataset[0], validation_data=self._dataset[1], epochs=self._hyperparameters[4], verbose=1)
 
-    # Model Prediction
-    def predict(self, dataset: pd.DataFrame):
+    def predict(self, dataset: pd.DataFrame, visualize: bool):
         X_test = self._scale.transform(dataset.iloc[:, :])
         X_test, y_test = self.generate_sequences(X_test, self._hyperparameters[-2])
 
@@ -157,5 +157,17 @@ class LSTMModel:
         y_pred = self._model.predict(test_data, verbose=1)
         y_pred = self._scale.inverse_transform(y_pred)
 
-        print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
-        print('y_pred = {}'.format(y_pred[1, :]))
+        if visualize:
+            for i in range(len(dataset.columns)):
+                # Plot the predicted values against the actual values
+                plt.plot(dataset.iloc[self._hyperparameters[-2]:, i].values, label='Actual')
+                plt.plot(y_pred[:, i], label='Predicted')
+                plt.xlabel('Time')
+                plt.ylabel('Value')
+                plt.legend()
+                plt.show()
+
+        # print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
+        # print('y_pred = {}'.format(y_pred[1, :]))
+
+# Plot the MAE and Loss
