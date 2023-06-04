@@ -17,11 +17,12 @@ class LSTMModel:
         self._dropout_regularization: tuple = None
         self._model: Sequential = None
         self._scale = None
+        self._history = None
 
     def generate_sequences(self, data, n_steps):
         X, y = [], []
         for i in range(len(data) - n_steps):
-            X.append(data[i : i + n_steps, :]) # Exclude length & weight predict?
+            X.append(data[i : i + n_steps, :])
             y.append(data[i + n_steps, :])
         X, y = np.array(X), np.array(y)
 
@@ -130,7 +131,8 @@ class LSTMModel:
         model.add(Dense(self._hyperparameters[-1], activation='linear'))
 
         model.compile(
-            loss=self._hyperparameters[1], optimizer=self._hyperparameters[2]
+            loss=self._hyperparameters[1], optimizer=self._hyperparameters[2],
+            metrics = ['mean_absolute_error', 'accuracy']
         )
 
         self._model = model
@@ -145,11 +147,31 @@ class LSTMModel:
         
 
     def train(self):
-        self._model.fit(self._dataset[0], validation_data=self._dataset[1], epochs=self._hyperparameters[4], verbose=1)
+        model_fit = self._model.fit(self._dataset[0], validation_data=self._dataset[1], epochs=self._hyperparameters[4], verbose=1)
+        self._history = model_fit
+
+    def plot_history(self):
+        mae = self._history.history['mean_absolute_error']
+        val_mae = self._history.history['val_mean_absolute_error']
+        loss = self._history.history['loss']
+        val_loss = self._history.history['val_loss']
+
+        plt.plot(mae, label='Train MAE')
+        plt.plot(loss, label='Train Loss')
+        plt.plot(val_mae, label='Val MAE')
+        plt.plot(val_loss, label='Val Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Value')
+        plt.legend()
+        plt.show()
+
 
     def predict(self, dataset: pd.DataFrame, visualize: bool):
         X_test = self._scale.transform(dataset.iloc[:, :])
         X_test, y_test = self.generate_sequences(X_test, self._hyperparameters[-2])
+
+        error = self._model.evaluate(X_test, y_test, verbose=0)
+        print(f"Evaluation: loss({error[0]}), defined_error({error[1]}), accuracy({error[2]})")
 
         test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
         test_data = test_data.batch(self._hyperparameters[3])
@@ -170,8 +192,6 @@ class LSTMModel:
         # print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
         # print('y_pred = {}'.format(y_pred[1, :]))
 
-
-# Surpress tensorflow warnings
-# Plot the MAE and Loss
+# Add Metrics parameters to model.compile
 # Shuffle boolean
 # Multistep Model and the proper way to visualize 
