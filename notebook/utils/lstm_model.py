@@ -172,6 +172,6 @@ class LSTMModel:
 
 
 # Surpress tensorflow warnings
-# Exclude length & weight predict?
-# Shuffle boolean
 # Plot the MAE and Loss
+# Shuffle boolean
+# Multistep Model and the proper way to visualize 
