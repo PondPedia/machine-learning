@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-
+import seaborn as sns
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
@@ -18,6 +18,7 @@ class LSTMModel:
         self._model: Sequential = None
         self._scale = None
         self._history = None
+        self._metrics: tuple = None
 
     def generate_sequences(self, data, n_steps):
         X, y = [], []
@@ -43,7 +44,7 @@ class LSTMModel:
         return self._num_layers
 
     @num_layers.setter
-    def num_layers(self, value: tuple) -> None:
+    def num_layers(self, value: int) -> None:
         self._num_layers = value
 
     # Hyperparameters
@@ -107,35 +108,35 @@ class LSTMModel:
                 LSTM(
                     self.num_neurons[0], 
                     activation=self._hyperparameters[0], 
-                    return_sequences=True
+                    return_sequences= False if self._num_layers < 2 else True
                 ), input_shape=(self._hyperparameters[-2], self._hyperparameters[-1])
             )
         )
 
-        if self.dropout_regularization:
-            model.add(Dropout(self.dropout_regularization[0]))
+        model.add(Dropout(self._dropout_regularization[0]))
 
-        for layer in range(1, self.num_layers):
-            model.add(
-                Bidirectional(
-                    LSTM(
-                        self.num_neurons[layer], 
-                        activation=self._hyperparameters[0], 
-                        return_sequences=True if layer < self.num_layers - 1 else False,
+        if self._num_layers > 1:
+            for layer in range(1, self._num_layers):
+                model.add(
+                    Bidirectional(
+                        LSTM(
+                            self._num_neurons[layer], 
+                            activation=self._hyperparameters[0], 
+                            return_sequences=True if layer < self.num_layers - 1 else False,
+                        )
                     )
                 )
-            )
-            if self.dropout_regularization:
-                model.add(Dropout(self.dropout_regularization[layer]))
-        
+                model.add(Dropout(self._dropout_regularization[layer]))
+
         model.add(Dense(self._hyperparameters[-1], activation='linear'))
 
         model.compile(
-            loss=self._hyperparameters[1], optimizer=self._hyperparameters[2],
-            metrics = ['mean_absolute_error', 'accuracy']
+            loss=self._hyperparameters[1][0], optimizer=self._hyperparameters[2],
+            metrics = [self._hyperparameters[1][-2], self._hyperparameters[1][-1]]
         )
 
         self._model = model
+
 
     def inspect(self, summary: bool = True, get_weights: bool = False, plot_model: bool = False):
         if summary:
@@ -151,27 +152,26 @@ class LSTMModel:
         self._history = model_fit
 
     def plot_history(self):
-        mae = self._history.history['mean_absolute_error']
-        val_mae = self._history.history['val_mean_absolute_error']
-        loss = self._history.history['loss']
-        val_loss = self._history.history['val_loss']
+        metrics_names = self._model.metrics_names
+        for metric_name in metrics_names:
+            train_metric_values = self._history.history[metric_name]
+            val_metric_values = self._history.history[f'val_{metric_name}']
+            epochs = range(1, len(train_metric_values) + 1)
 
-        plt.plot(mae, label='Train MAE')
-        plt.plot(loss, label='Train Loss')
-        plt.plot(val_mae, label='Val MAE')
-        plt.plot(val_loss, label='Val Loss')
-        plt.xlabel('Epoch')
-        plt.ylabel('Value')
-        plt.legend()
-        plt.show()
-
-
-    def predict(self, dataset: pd.DataFrame, visualize: bool):
+            plt.plot(epochs, train_metric_values, 'r', label=f'Training {metric_name}')
+            plt.plot(epochs, val_metric_values, 'b', label=f'Validation {metric_name}')
+            plt.title(f'Training and validation {metric_name}')
+            plt.xlabel('Epochs')
+            plt.ylabel(metric_name)
+            plt.legend()
+            plt.show()
+    
+    def predict(self, dataset: pd.DataFrame, visualize: bool = True):
         X_test = self._scale.transform(dataset.iloc[:, :])
         X_test, y_test = self.generate_sequences(X_test, self._hyperparameters[-2])
 
         error = self._model.evaluate(X_test, y_test, verbose=0)
-        print(f"Evaluation: loss({error[0]}), defined_error({error[1]}), accuracy({error[2]})")
+        print(f"Evaluation: loss({error[0]}), ({error[1]}), accuracy({error[2]})")
 
         test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
         test_data = test_data.batch(self._hyperparameters[3])
@@ -180,18 +180,20 @@ class LSTMModel:
         y_pred = self._scale.inverse_transform(y_pred)
 
         if visualize:
-            for i in range(len(dataset.columns)):
+            fig, axes = plt.subplots(nrows=len(dataset.columns), figsize=(18, 10))
+            for i, ax in enumerate(axes):
                 # Plot the predicted values against the actual values
-                plt.plot(dataset.iloc[self._hyperparameters[-2]:, i].values, label='Actual')
-                plt.plot(y_pred[:, i], label='Predicted')
-                plt.xlabel('Time')
-                plt.ylabel('Value')
-                plt.legend()
-                plt.show()
+                ax.plot(dataset.iloc[self._hyperparameters[-2]:, i].values, label='Actual')
+                ax.plot(y_pred[:, i], label='Predicted')
+                ax.set_title(f'{dataset.columns[i]}')
+                ax.set_xlabel('Time')
+                ax.set_ylabel('Value')
+                ax.legend()
+            plt.show()
+
 
         # print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
         # print('y_pred = {}'.format(y_pred[1, :]))
 
-# Add Metrics parameters to model.compile
 # Shuffle boolean
 # Multistep Model and the proper way to visualize 
