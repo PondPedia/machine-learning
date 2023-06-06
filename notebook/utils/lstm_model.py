@@ -87,11 +87,11 @@ class LSTMModel:
 
         # Proprocess the dataset using built-in dataset library from Tensorflow
         train_data = tf.data.Dataset.from_tensor_slices((X_train, y_train))
-        train_data = (
-            train_data.cache()
-            .shuffle(self._hyperparameters[-3])
-            .batch(self._hyperparameters[3])
-        )
+
+        if info[2]:
+            train_data = (train_data.cache().shuffle(self._hyperparameters[-3]).batch(self._hyperparameters[3]))
+        else:
+            train_data = (train_data.cache().batch(self._hyperparameters[3]))
 
         val_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
         val_data = val_data.batch(self._hyperparameters[3])
@@ -176,7 +176,7 @@ class LSTMModel:
         test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
         test_data = test_data.batch(self._hyperparameters[3])
 
-        y_pred = self._model.predict(test_data, verbose=1)
+        y_pred = self._model.predict(test_data, verbose=0)
         y_pred = self._scale.inverse_transform(y_pred)
 
         if visualize:
