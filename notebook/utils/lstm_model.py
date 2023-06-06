@@ -170,8 +170,9 @@ class LSTMModel:
         X_test = self._scale.transform(dataset.iloc[:, :])
         X_test, y_test = self.generate_sequences(X_test, self._hyperparameters[-2])
 
-        error = self._model.evaluate(X_test, y_test, verbose=0)
-        print(f"Evaluation: loss({error[0]}), ({error[1]}), accuracy({error[2]})")
+        evaluation = self._model.evaluate(X_test, y_test, verbose=0)
+        for metric_name, metric_value in zip(self._model.metrics_names, evaluation):
+            print(f'{metric_name}: {metric_value}')
 
         test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
         test_data = test_data.batch(self._hyperparameters[3])
@@ -182,7 +183,6 @@ class LSTMModel:
         if visualize:
             fig, axes = plt.subplots(nrows=len(dataset.columns), figsize=(18, 10))
             for i, ax in enumerate(axes):
-                # Plot the predicted values against the actual values
                 ax.plot(dataset.iloc[self._hyperparameters[-2]:, i].values, label='Actual')
                 ax.plot(y_pred[:, i], label='Predicted')
                 ax.set_title(f'{dataset.columns[i]}')
@@ -195,5 +195,4 @@ class LSTMModel:
         # print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
         # print('y_pred = {}'.format(y_pred[1, :]))
 
-# Shuffle boolean
 # Multistep Model and the proper way to visualize 
