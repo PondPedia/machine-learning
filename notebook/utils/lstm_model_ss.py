@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import seaborn as sns
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
@@ -10,6 +9,13 @@ from tensorflow.keras.layers import LSTM, Bidirectional, Dense, Dropout
 class LSTMModel:
     # Set it to None for greater flexibility
     def __init__(self):
+        """
+        Initializes an instance of the class, defining all its necessary attributes.
+        This function takes no input arguments.
+
+        Returns:
+            None
+        """
         self._num_neurons: tuple = None
         self._num_layers: int = None
         self._hyperparameters: tuple = None
@@ -20,7 +26,18 @@ class LSTMModel:
         self._history = None
         self._metrics: tuple = None
 
-    def generate_sequences(self, data, n_steps):
+    def generate_sequences(self, data, n_steps) -> np.array:
+        """
+        Generates sequences of input/output pairs for training a model.
+
+        Parameters:
+        data (numpy array): The input data to generate sequences from.
+        n_steps (int): The number of time steps in each sequence.
+
+        Returns:
+        X (numpy array): An array of sequences of input data.
+        y (numpy array): An array of corresponding output data for each input sequence.
+        """
         X, y = [], []
         for i in range(len(data) - n_steps):
             X.append(data[i : i + n_steps, :])
@@ -32,46 +49,122 @@ class LSTMModel:
     # Number of Neurons For Each Layer
     @property
     def num_neurons(self) -> tuple:
+        """
+        Returns a tuple representing the number of neurons in each layer of the neural network.
+
+        :return: A tuple of integers representing the number of neurons in each layer.
+        :rtype: tuple
+        """
         return self._num_neurons
 
     @num_neurons.setter
     def num_neurons(self, value: int) -> None:
+        """
+        Setter for the num_neurons attribute of the class. 
+        Sets the num_neurons attribute to the given value.
+        
+        :param value: An integer representing the new value for the num_neurons attribute.
+        :type value: int
+        :return: None
+        """
         self._num_neurons = value
 
     # Number of Layers
     @property
     def num_layers(self) -> int:
+        """
+        Returns the number of layers in the current object. 
+        
+        :return: An integer representing the number of layers.
+        :rtype: int
+        """
         return self._num_layers
 
     @num_layers.setter
     def num_layers(self, value: int) -> None:
+        """
+        Set the number of layers in the network.
+
+        :param value: An integer representing the number of layers.
+        :type value: int
+        :return: None
+        """
         self._num_layers = value
 
     # Hyperparameters
     @property
     def hyperparameters(self) -> tuple:
+        """
+        Returns a tuple representing the hyperparameters of the object.
+        :return: tuple of hyperparameters
+        :rtype: tuple
+        """
         return self._hyperparameters
 
     @hyperparameters.setter
     def hyperparameters(self, value: tuple) -> None:
+        """
+        Setter method for the hyperparameters attribute.
+
+        :param value: A tuple representing the hyperparameters.
+        :type value: tuple
+        :return: None
+        """
         self._hyperparameters = value
 
     # Dropout Regularization
     @property
     def dropout_regularization(self):
+        """
+        Returns the value of the dropout regularization used in the model.
+
+        Returns:
+            The value of the dropout regularization.
+        """
         return self._dropout_regularization
 
     @dropout_regularization.setter
     def dropout_regularization(self, value: tuple) -> None:
+        """
+        Set the dropout regularization for the neural network model.
+
+        :param value: A tuple representing the dropout regularization values for each layer.
+        :type value: tuple
+        :return: None
+        """
         self._dropout_regularization = value
 
     # Dataset
     @property
     def dataset(self) -> tuple:
+        """
+        Returns the _dataset attribute of the class instance.
+
+        :return: A tuple representing the dataset.
+        :rtype: tuple
+        """
         return self._dataset
 
     @dataset.setter
     def dataset(self, info: tuple) -> None:
+        """
+        Setter function for the dataset attribute. Takes in a tuple of information consisting of the dataset, 
+        value, and a boolean flag indicating whether to shuffle the data during training. Splits the dataset 
+        into training and validation sets, preprocesses the data using the MinMaxScaler, generates sequences 
+        from the data, and creates TensorFlow datasets for both training and validation sets. Caches and shuffles 
+        the training data if the flag is True, and batches both training and validation datasets. Sets the 
+        _scale and _dataset attributes of the object.
+
+        Parameters:
+        ----------
+        info : tuple
+            A tuple of information consisting of the dataset, value, and a boolean flag indicating whether 
+            to shuffle the data during training.
+
+        Returns:
+        ----------
+        None
+        """
         dataset = info[0]
         value = info[1]
         scaler = MinMaxScaler()
@@ -101,6 +194,12 @@ class LSTMModel:
 
     # Model
     def model(self):
+        """
+        Defines the LSTM model architecture with a variable number of layers, neurons, and hyperparameters.
+        
+        Returns:
+        None
+        """
         # Add LSTM layers
         model = Sequential()
         model.add(
@@ -139,6 +238,15 @@ class LSTMModel:
 
 
     def inspect(self, summary: bool = True, get_weights: bool = False, plot_model: bool = False):
+        """
+        Generates a summary of the model if summary is True. Plots the model if plot_model is True.
+        Returns the weights of the model if get_weights is True.
+        
+        :param summary: (bool) Whether to print the summary of the model.
+        :param get_weights: (bool) Whether to return the weights of the model.
+        :param plot_model: (bool) Whether to plot the model.
+        :return: None or the weights of the model, depending on the value of get_weights.
+        """
         if summary:
             print(self._model.summary())
         if plot_model:
@@ -148,10 +256,21 @@ class LSTMModel:
         
 
     def train(self):
+        """
+        Trains the model using the specified dataset and hyperparameters.
+
+        :return: None
+        """
         model_fit = self._model.fit(self._dataset[0], validation_data=self._dataset[1], epochs=self._hyperparameters[4], verbose=1)
         self._history = model_fit
 
     def plot_history(self):
+        """
+        Plots the training and validation metrics for the given model history.
+        
+        Returns:
+        None
+        """
         metrics_names = self._model.metrics_names
         for metric_name in metrics_names:
             train_metric_values = self._history.history[metric_name]
@@ -167,6 +286,16 @@ class LSTMModel:
             plt.show()
     
     def predict(self, dataset: pd.DataFrame, visualize: bool = True):
+        """
+        Predicts the output values for a given dataset using the trained model.
+        
+        Args:
+            dataset (pd.DataFrame): The input dataset to predict on.
+            visualize (bool, optional): Whether to visualize the predictions or not. Defaults to True.
+        
+        Returns:
+            None
+        """
         X_test = self._scale.transform(dataset.iloc[:, :])
         X_test, y_test = self.generate_sequences(X_test, self._hyperparameters[-2])
 
@@ -191,11 +320,18 @@ class LSTMModel:
                 ax.legend()
             plt.show()
 
-
         # print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
         # print('y_pred = {}'.format(y_pred[1, :]))
     
     def save(self, path: str, format: str):
+        """
+        Saves the model to the specified `path` using the given `format`.
+        
+        :param path: A string representing the file path where the model will be saved.
+        :type path: str
+        
+        :param format: A string representing the format in which the model will be saved. 
+            Valid options include "tf" for TensorFlow format or "h5" for HDF5 format.
+        :type format: str
+        """
         self._model.save(path, save_format=format)
-
-# Multistep Model and the proper way to visualize
