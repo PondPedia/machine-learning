@@ -194,5 +194,8 @@ class LSTMModel:
 
         # print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
         # print('y_pred = {}'.format(y_pred[1, :]))
+    
+    def save(self, path: str, format: str):
+        self._model.save(path, save_format=format)
 
 # Multistep Model and the proper way to visualize
