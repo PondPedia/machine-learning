@@ -6,8 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
-# Any csv file
-*.csv
+# Models
+models
 
 # Distribution / packaging
 dist/

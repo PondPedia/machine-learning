@@ -20,11 +20,11 @@ class LSTMModel:
         self._history = None
         self._metrics: tuple = None
 
-    def generate_sequences(self, data, n_steps):
+    def generate_sequences(self, data, n_steps_in, n_steps_out):
         X, y = [], []
-        for i in range(len(data) - n_steps):
-            X.append(data[i : i + n_steps, :])
-            y.append(data[i + n_steps, :])
+        for i in range(len(data) - n_steps_in - n_steps_out + 1):
+            X.append(data[i : i + n_steps_in, :])
+            y.append(data[i + n_steps_in : i + n_steps_in + n_steps_out, :])
         X, y = np.array(X), np.array(y)
 
         return X, y
@@ -82,8 +82,8 @@ class LSTMModel:
         train_set = scaler.fit_transform(train_set)
         val_set = scaler.transform(val_set)
 
-        X_train, y_train = self.generate_sequences(train_set, self._hyperparameters[-2])
-        X_test, y_test = self.generate_sequences(val_set, self._hyperparameters[-2])
+        X_train, y_train = self.generate_sequences(train_set, self._hyperparameters[-2], self._hyperparameters[5])
+        X_test, y_test = self.generate_sequences(val_set, self._hyperparameters[-2], self._hyperparameters[5])
 
         # Proprocess the dataset using built-in dataset library from Tensorflow
         train_data = tf.data.Dataset.from_tensor_slices((X_train, y_train))
@@ -98,6 +98,12 @@ class LSTMModel:
 
         self._scale = scaler
         self._dataset = train_data, val_data
+        
+    def dataset_plot(self, dataset: pd.DataFrame()):
+        fig, ax = plt.subplots()
+        mask = len(dataset) <= 400
+        ax.plot(dataset.iloc[mask, 0], color='red')
+        ax.plot(dataset.iloc[~mask, 0], color='blue' )
 
     # Model
     def model(self):
@@ -165,26 +171,35 @@ class LSTMModel:
             plt.ylabel(metric_name)
             plt.legend()
             plt.show()
-    
+
+
     def predict(self, dataset: pd.DataFrame, visualize: bool = True):
         X_test = self._scale.transform(dataset.iloc[:, :])
-        X_test, y_test = self.generate_sequences(X_test, self._hyperparameters[-2])
+        X_test, y_test = self.generate_sequences(X_test, self._hyperparameters[-2], self._hyperparameters[5])
 
         evaluation = self._model.evaluate(X_test, y_test, verbose=0)
         for metric_name, metric_value in zip(self._model.metrics_names, evaluation):
             print(f'{metric_name}: {metric_value}')
 
-        test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
-        test_data = test_data.batch(self._hyperparameters[3])
-
-        y_pred = self._model.predict(test_data, verbose=0)
+        y_pred = self._model.predict(X_test, verbose=0)
         y_pred = self._scale.inverse_transform(y_pred)
 
         if visualize:
             fig, axes = plt.subplots(nrows=len(dataset.columns), figsize=(18, 10))
             for i, ax in enumerate(axes):
-                ax.plot(dataset.iloc[self._hyperparameters[-2]:, i].values, label='Actual')
+                ax.plot(dataset.iloc[self._hyperparameters[-2]:, i].values, label='True')
                 ax.plot(y_pred[:, i], label='Predicted')
+                ax.set_title(f'{dataset.columns[i]}')
+                ax.set_xlabel('Time')
+                ax.set_ylabel('Value')
+                ax.legend()
+            plt.show()
+
+            # Plot the predicted values for the next n_steps_out steps
+            fig, axes = plt.subplots(nrows=len(dataset.columns), figsize=(18, 10))
+            for i, ax in enumerate(axes):
+                ax.plot(y_test[-1, :, i], label='True')
+                ax.plot(y_pred[-1, :, i], label='Predicted')
                 ax.set_title(f'{dataset.columns[i]}')
                 ax.set_xlabel('Time')
                 ax.set_ylabel('Value')
@@ -195,4 +210,4 @@ class LSTMModel:
         # print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
         # print('y_pred = {}'.format(y_pred[1, :]))
 
-# Multistep Model and the proper way to visualize 
+# Multistep Model and the proper way to visualize
