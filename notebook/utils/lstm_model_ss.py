@@ -1,3 +1,4 @@
+import joblib
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -323,15 +324,17 @@ class LSTMModel:
         # print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
         # print('y_pred = {}'.format(y_pred[1, :]))
     
-    def save(self, path: str, format: str):
+    def save(self, path: str, format: str, scaler: bool = False):
         """
-        Saves the model to the specified `path` using the given `format`.
-        
-        :param path: A string representing the file path where the model will be saved.
-        :type path: str
-        
-        :param format: A string representing the format in which the model will be saved. 
-            Valid options include "tf" for TensorFlow format or "h5" for HDF5 format.
-        :type format: str
+        Save the model to the specified path in the specified format.
+
+        :param path: A string representing the file path to save the model.
+        :param format: A string representing the format in which to save the model.
+        :param scaler: A boolean indicating whether or not to save the scaler.
+
+        :return: None
         """
         self._model.save(path, save_format=format)
+
+        if scaler:
+            joblib.dump(self._scale, 'models/scaler.joblib')
