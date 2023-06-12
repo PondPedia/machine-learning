@@ -37,12 +37,14 @@ def predict_online(dataset, project, endpoint_id, location, api_endpoint):
     print('Online Prediction for friza-ganteng endpoint')
 
     predictions = response.predictions
-    for prediction in predictions:
-        print(prediction)
+
+    print(scale.inverse_transform(predictions))
+    # for prediction in predictions:
+        # print(scale(prediction))
 
 if __name__ == '__main__':
-    dataset = pd.read_csv('./dataset/mini.csv')
-    dataset = dataset.drop(dataset.columns[0], axis=1)
+    dataset = pd.read_csv('./dataset/nprepros_pond3_linear.csv', index_col=0, parse_dates=True)
     dataset = dataset.drop(dataset.columns[-2:], axis=1)
+    dataset = dataset.iloc[:11, :]
 
     predict_online(dataset, project="973580810637", endpoint_id="5640177991142080512", location="northamerica-northeast1", api_endpoint = "northamerica-northeast1-aiplatform.googleapis.com")
