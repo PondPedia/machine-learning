@@ -8,6 +8,7 @@ __pycache__/
 
 # Models
 models
+*.json
 
 # Distribution / packaging
 dist/
