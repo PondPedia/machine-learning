@@ -5,7 +5,7 @@ import pandas as pd
 import tensorflow as tf
 
 from tensorflow.keras.models import load_model
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 
 model = load_model('friza_3_model.h5')
 scaler = joblib.load('scaler.joblib')
@@ -20,9 +20,9 @@ def generate_sequences(data, n_steps) -> np.array:
     return X, y
 
 def generate_dataset(dataset, input_width: int) -> np.array:
-    pred_data = dataset.drop(dataset.columns[-2:], axis=1)
+    # pred_data = dataset.drop(dataset.columns[-2:], axis=1)
     
-    pred_data = scaler.transform(pred_data)
+    pred_data = scaler.transform(dataset)
     pred_data = generate_sequences(pred_data, input_width)
 
     pred_data = tf.data.Dataset.from_tensor_slices((pred_data))
@@ -35,19 +35,50 @@ def predict(dataset: np.array):
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
+def index_get():
+    response = make_response(jsonify({
+        'status': 'Success!',
+        'message': 'Welcome to PondPediaPrediction!'
+    }))
+    response.status_code = 200
+    response.headers['Content-Type'] = 'text/plain'
+
+    return response
+
+@app.route('/water', methods=['POST'])
 def index():
-    if request.method == 'POST':
-        json_response = request.get_json()
-        dataset = pd.read_json(json_response)
-        prediction = predict(generate_dataset(dataset, 3))
+    try:
+        json_response = request.get_json()        
+        json_response = json.dumps(json_response) # If you make some predictions using python request then this code will raise an error
+        
+        df = pd.read_json(json_response)
 
-        prediction_list = prediction[0:6].tolist()
-        prediction_json = json.dumps(prediction_list, indent=4, sort_keys=True)
+        prediction = predict(generate_dataset(df, 3))
+        prediction_json = json.dumps(prediction.tolist(), indent=4, sort_keys=True)
 
-        print({'prediction': prediction_json})
+        response_data = {
+            'status': 'Success!',
+            'message': 'Water Quality Prediction for the next 6 hours',
+            'predictions': prediction_json
+        }
+        response = make_response(jsonify(response_data))
+        response.status_code = 200
+        response.headers['Content-Type'] = 'application/json'
+        
+        return response
+    except Exception as e:
+        response = make_response(jsonify({
+            'status': 'Error',
+            'message': str(e)
+        }))
+        response.status_code = 500
+        response.headers['Content-Type'] = 'application/json'
+
+        return response
     
-    return "OK!"
+# Fish Growth Rate (Coming Soon!)
 
 if __name__ == "__main__":
     app.run(debug=True)
+
