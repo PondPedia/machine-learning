@@ -1,0 +1,4 @@
+Dockerfile
+*.json
+vertex_ai.py
+test_predict.py
