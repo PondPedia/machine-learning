@@ -1,0 +1,10 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+Dockerfile
+*.json
+vertex_ai.py
+test_predict.py
+
