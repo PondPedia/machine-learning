@@ -16,10 +16,10 @@ We have cleaned and preprocessed the dataset to ensure its quality and suitabili
 We have employed advanced machine learning models to tackle different aspects of the aquaculture process. Here are the models we have developed:
 
 **LSTM Model:** We utilize the LSTM model to predict water quality accurately. You can explore the implementation details in the LSTM folder.
-- [LSTM Folder](https://github.com/PondPedia/machine-learning/tree/main/notebook/utils)
+- [LSTM Folder](https://github.com/PondPedia/machine-learning/tree/main/online_prediction/assets)
 
 **Regression Model:** To predict the optimal fish harvest time, we have built a regression model that takes various factors into account.
-- [Regression Folder]()
+- [Regression Folder](https://github.com/PondPedia/machine-learning/tree/main/online_prediction/assets)
 
 ## Deploy Model
 You can access the deployment-ready models and the required supporting files in the [model to deploy](https://github.com/PondPedia/machine-learning/tree/main/online_prediction/assets) folder. We have also included additional files necessary for smooth deployment in the [support files for deploy](https://github.com/PondPedia/machine-learning/tree/main/online_prediction) folder.
