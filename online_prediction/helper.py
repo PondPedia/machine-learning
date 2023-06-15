@@ -7,10 +7,11 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from flask import Flask, request
 
-forecast_model = load_model('./assets/friza_3_model.h5')
-regression_model = load_model('./assets/regression_model.h5')
-forecast_scaler = joblib.load('./assets/forecasting_scaler.joblib')
-regress_scaller = joblib.load('./assets/regression_scaler.save')
+# forecast_model = load_model('./assets/forecasting_model.h5')
+forecast_model = load_model('./assets/forecasting_model_astrid.h5')
+forecast_scaler = joblib.load('./assets/forecasting_scaler_astrid.joblib')
+regression_model = load_model('./assets/regression_model_irvan.h5')
+regress_scaller = joblib.load('./assets/regression_scaler_irvan.save')
 
 def generate_sequences(data, n_steps) -> np.array:
     X = []
@@ -47,7 +48,7 @@ def formatted_predict(json_response) -> str:
         json_response = json.dumps(json_response) # If you make some predictions using python request then this code will raise an error
     
     df = pd.read_json(json_response)
-    prediction = predict_forecast(generate_dataset(df, 3))
+    prediction = predict_forecast(generate_dataset(df, 1))
 
     prediction_json = json.dumps(prediction.tolist(), indent=4, sort_keys=True)
 
