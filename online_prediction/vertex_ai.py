@@ -22,23 +22,23 @@ def generate_sequences(data, n_steps) -> np.array:
 
 def predict_online(dataset, project, endpoint_id, location, api_endpoint):
     scale = joblib.load('models/scaler.joblib')
-    y_pred = scale.transform(dataset.iloc[:, :])
-    y_pred = generate_sequences(y_pred, 10)      
-    y_pred = y_pred[0].tolist()
+    y_true = scale.transform(dataset.iloc[:, :])
+    y_true = generate_sequences(y_true, 10)      
+    y_true = y_true[0].tolist()
     
     client_options = {"api_endpoint": api_endpoint}
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
 
-    instances = [json_format.ParseDict(instance_dict, Value()) for instance_dict in y_pred]
+    instances = [json_format.ParseDict(instance_dict, Value()) for instance_dict in y_true]
 
     endpoint = client.endpoint_path(project=project, location=location, endpoint=endpoint_id)
     response = client.predict(endpoint=endpoint, instances=instances)
 
     print('Online Prediction for friza-ganteng endpoint')
 
-    predictions = response.predictions
+    y_pred = response.predictions
 
-    print(scale.inverse_transform(predictions))
+    print(scale.inverse_transform(y_pred))
     # for prediction in predictions:
         # print(scale(prediction))
 

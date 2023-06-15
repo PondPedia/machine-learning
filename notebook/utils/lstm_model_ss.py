@@ -7,7 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Bidirectional, Dense, Dropout
 
-class LSTMModel:
+class Hyperparameters:
     # Set it to None for greater flexibility
     def __init__(self):
         """
@@ -20,12 +20,8 @@ class LSTMModel:
         self._num_neurons: tuple = None
         self._num_layers: int = None
         self._hyperparameters: tuple = None
-        self._dataset: tuple = None
         self._dropout_regularization: tuple = None
-        self._model: Sequential = None
-        self._scale = None
-        self._history = None
-        self._metrics: tuple = None
+
 
     def generate_sequences(self, data, n_steps) -> np.array:
         """
@@ -135,6 +131,16 @@ class LSTMModel:
         """
         self._dropout_regularization = value
 
+
+class LSTMModel(Hyperparameters):
+    def __init__(self):
+        super().__init__()
+        self._dataset: tuple = None
+        self._model: Sequential = None
+        self._scale = None
+        self._history = None
+        self._metrics: tuple = None
+    
     # Dataset
     @property
     def dataset(self) -> tuple:
@@ -176,19 +182,19 @@ class LSTMModel:
         train_set = scaler.fit_transform(train_set)
         val_set = scaler.transform(val_set)
 
-        X_train, y_train = self.generate_sequences(train_set, self._hyperparameters[-2])
-        X_test, y_test = self.generate_sequences(val_set, self._hyperparameters[-2])
+        X_train, y_train = self.generate_sequences(train_set, super().hyperparameters[-2])
+        X_test, y_test = self.generate_sequences(val_set, super().hyperparameters[-2])
 
         # Proprocess the dataset using built-in dataset library from Tensorflow
         train_data = tf.data.Dataset.from_tensor_slices((X_train, y_train))
 
         if info[2]:
-            train_data = (train_data.cache().shuffle(self._hyperparameters[-3]).batch(self._hyperparameters[3]))
+            train_data = (train_data.cache().shuffle(super().hyperparameters[-3]).batch(super().hyperparameters[3]))
         else:
-            train_data = (train_data.cache().batch(self._hyperparameters[3]))
+            train_data = (train_data.cache().batch(super().hyperparameters[3]))
 
         val_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
-        val_data = val_data.batch(self._hyperparameters[3])
+        val_data = val_data.batch(super().hyperparameters[3])
 
         self._scale = scaler
         self._dataset = train_data, val_data
@@ -207,9 +213,9 @@ class LSTMModel:
             Bidirectional(
                 LSTM(
                     self.num_neurons[0], 
-                    activation=self._hyperparameters[0], 
+                    activation=super().hyperparameters[0], 
                     return_sequences= False if self._num_layers < 2 else True
-                ), input_shape=(self._hyperparameters[-2], self._hyperparameters[-1])
+                ), input_shape=(super().hyperparameters[-2], super().hyperparameters[-1])
             )
         )
 
@@ -221,18 +227,18 @@ class LSTMModel:
                     Bidirectional(
                         LSTM(
                             self._num_neurons[layer], 
-                            activation=self._hyperparameters[0], 
+                            activation=super().hyperparameters[0], 
                             return_sequences=True if layer < self.num_layers - 1 else False,
                         )
                     )
                 )
                 model.add(Dropout(self._dropout_regularization[layer]))
 
-        model.add(Dense(self._hyperparameters[-1], activation='linear'))
+        model.add(Dense(super().hyperparameters[-1], activation='linear'))
 
         model.compile(
-            loss=self._hyperparameters[1][0], optimizer=self._hyperparameters[2],
-            metrics = [self._hyperparameters[1][-2], self._hyperparameters[1][-1]]
+            loss=super().hyperparameters[1][0], optimizer=super().hyperparameters[2],
+            metrics = [super().hyperparameters[1][-2], super().hyperparameters[1][-1]]
         )
 
         self._model = model
@@ -262,7 +268,7 @@ class LSTMModel:
 
         :return: None
         """
-        model_fit = self._model.fit(self._dataset[0], validation_data=self._dataset[1], epochs=self._hyperparameters[4], verbose=1)
+        model_fit = self._model.fit(self._dataset[0], validation_data=self._dataset[1], epochs=super().hyperparameters[4], verbose=1)
         self._history = model_fit
 
     def plot_history(self):
@@ -298,14 +304,14 @@ class LSTMModel:
             None
         """
         X_test = self._scale.transform(dataset.iloc[:, :])
-        X_test, y_test = self.generate_sequences(X_test, self._hyperparameters[-2])
+        X_test, y_test = self.generate_sequences(X_test, super().hyperparameters[-2])
 
         evaluation = self._model.evaluate(X_test, y_test, verbose=0)
         for metric_name, metric_value in zip(self._model.metrics_names, evaluation):
             print(f'{metric_name}: {metric_value}')
 
         test_data = tf.data.Dataset.from_tensor_slices((X_test, y_test))
-        test_data = test_data.batch(self._hyperparameters[3])
+        test_data = test_data.batch(super().hyperparameters[3])
 
         y_pred = self._model.predict(test_data, verbose=0)
         y_pred = self._scale.inverse_transform(y_pred)
@@ -313,7 +319,7 @@ class LSTMModel:
         if visualize:
             fig, axes = plt.subplots(nrows=len(dataset.columns), figsize=(18, 10))
             for i, ax in enumerate(axes):
-                ax.plot(dataset.iloc[self._hyperparameters[-2]:, i].values, label='Actual')
+                ax.plot(dataset.iloc[super().hyperparameters[-2]:, i].values, label='Actual')
                 ax.plot(y_pred[:, i], label='Predicted')
                 ax.set_title(f'{dataset.columns[i]}')
                 ax.set_xlabel('Time')
@@ -321,7 +327,7 @@ class LSTMModel:
                 ax.legend()
             plt.show()
 
-        # print('y_true = {}'.format(dataset.iloc[self._hyperparameters[-2], :].values))
+        # print('y_true = {}'.format(dataset.iloc[super().hyperparameters[-2], :].values))
         # print('y_pred = {}'.format(y_pred[1, :]))
     
     def save(self, path: str, format: str, scaler: bool = False):
