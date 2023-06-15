@@ -53,9 +53,9 @@ def formatted_predict(json_response) -> str:
 
     return prediction_json
 
-def formatted_predict_regression(dataset):
+def formatted_predict_regression(json_response) -> str:
     if 'python' not in request.headers.get('User-Agent'):
-        json_response = json.dumps(dataset)
+        json_response = json.dumps(json_response)
         
     dataframe = pd.read_json(json_response)
     result_pred = predict_regress(dataframe)
