@@ -45,8 +45,115 @@ To install these libraries, run the following command:
 
 ```pip install --requirement requirements.txt```
 
-## Usage
-...
+## Model Usage API
+### Base URL
+https://pondpediaprediction-ismbpqewoa-as.a.run.app
+
+**Endpoints**
+`GET /`
+- Returns a welcome message for the PondPediaPrediction API.
+
+**Request**
+- Method: GET
+
+**Response**
+- Status code: 200
+- Headers:
+- Content-Type: text/plain
+- Body:
+```
+{
+    "status": "Success!",
+    "message": "Welcome to PondPediaPrediction!"
+}
+```
+
+`POST /water`
+- Predicts the water quality for the next 6 hours using the provided JSON data in the request body.
+
+**Request**
+- Method: POST
+- Headers:
+- Content-Type: application/json
+- Body:
+```
+[
+    {
+      "temp": 24.23414855,
+      "turbidity": 80.24561404,
+      "oxygen": 3.976651515,
+      "ph": 7.275005628,
+      "ammonia": 0.140939666,
+      "nitrat": 1.123123
+    }
+]
+```
+
+**Response**
+- Status code: 200
+- Headers:
+- Content-Type: text/plain
+- Body:
+{
+  message: {
+    message: 'Water Quality Prediction for the next 6 hours',
+    predictions: '[\n' +
+      '    [\n' +
+      '        24.225269317626953,\n' +
+      '        80.11214447021484,\n' +
+      '        3.992586135864258,\n' +
+      '        7.262341499328613,\n' +
+      '        0.16394536197185516,\n' +
+      '        1.1969711780548096\n' +
+      '    ]\n' +
+      ']',
+    status: 'Success!'
+  },
+  success: true
+}
+
+
+`POST /fishgrowth`
+- Predicts the fish growth rate using the provided JSON data in the request body.
+
+**Request**
+- Method: POST
+- Headers:
+- Content-Type: application/json
+- Body:
+```
+[
+    {
+      "temp": 24.23414855,
+      "turbidity": 80.24561404,
+      "oxygen": 3.976651515,
+      "ph": 7.275005628,
+      "ammonia": 0.140939666,
+      "nitrat": 1.116871508,
+      "weight": 6.74
+    }
+]
+```
+
+**Response**
+- Status code: 200
+- Headers:
+- Content-Type: text/plain
+- Body:
+{
+  message: {
+    message: 'Fish Growth Rate Prediction',
+    predictions: '[\n' +
+      '    [\n' +
+      '        25.595497131347656,\n' +
+      '        10.92888069152832,\n' +
+      '        95.13993072509766\n' +
+      '    ],\n' +
+      ']',
+    status: 'Success!'
+  },
+  success: true
+}
 
 
 ## Contributing
