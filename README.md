@@ -21,8 +21,35 @@ We have employed advanced machine learning models to tackle different aspects of
 **Regression Model:** To predict the optimal fish harvest time, we have built a regression model that takes various factors into account.
 - [Regression Folder](https://github.com/PondPedia/machine-learning/tree/main/online_prediction/assets)
 
+![astrid](https://github.com/PondPedia/machine-learning/assets/114053967/5dd4d4d7-d433-4167-85e6-bb7a36943f86)
+
+
+![irvandy](https://github.com/PondPedia/machine-learning/assets/114053967/8d1a572b-b698-46fb-b053-db758797f554)
+
+
 ### Deployed Model
 You can access the deployment-ready models and the required supporting files in the [model to deploy](https://github.com/PondPedia/machine-learning/tree/main/online_prediction/assets) folder. We have also included additional files necessary for smooth deployment in the [support files for deploy](https://github.com/PondPedia/machine-learning/tree/main/online_prediction) folder.
+
+## Installation
+To run this project, you will need Python 3.7 or higher and the following libraries:
+
+joblib
+pandas
+numpy
+tensorflow
+Flask
+gunicorn
+scikit-learn
+nltk
+matplotlib
+
+To install these libraries, run the following command:
+
+```pip install --requirement requirements.txt```
+
+## Usage
+...
+
 
 ## Contributing
 Contributions to this project are welcome. To contribute, fork the repository and create a pull request with your changes. All pull requests will be reviewed and merged by the project maintainers.
