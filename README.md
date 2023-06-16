@@ -94,6 +94,7 @@ https://pondpediaprediction-ismbpqewoa-as.a.run.app
 - Headers:
 - Content-Type: text/plain
 - Body:
+```
 {
   message: {
     message: 'Water Quality Prediction for the next 6 hours',
@@ -111,6 +112,7 @@ https://pondpediaprediction-ismbpqewoa-as.a.run.app
   },
   success: true
 }
+```
 
 
 `POST /fishgrowth`
@@ -140,6 +142,7 @@ https://pondpediaprediction-ismbpqewoa-as.a.run.app
 - Headers:
 - Content-Type: text/plain
 - Body:
+```
 {
   message: {
     message: 'Fish Growth Rate Prediction',
@@ -154,6 +157,7 @@ https://pondpediaprediction-ismbpqewoa-as.a.run.app
   },
   success: true
 }
+```
 
 
 ## Contributing
