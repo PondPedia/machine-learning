@@ -45,6 +45,9 @@ To install these libraries, run the following command:
 
 ```pip install --requirement requirements.txt```
 
+## Usage
+Since the program to create the model itself was written in the OOP style, to train the model we suggest you to create instances of LSTMModel and Hyperparameters class, details on how to do that is pretty straighforward, you just simply copy one of our notebook file and that's it! Now you can tune the parameters and see if you can beat our best model! We recommend you to try this in Visual Studio Code editor with Jupyter Notebook extension already installed.
+
 ## Model Usage API
 ### Base URL
 https://pondpediaprediction-ismbpqewoa-as.a.run.app
