@@ -17,12 +17,11 @@ We have employed advanced machine learning models to tackle different aspects of
 **LSTM Model:** We utilize the LSTM model to predict water quality accurately. You can explore the implementation details in the LSTM folder.
 - [LSTM Folder](https://github.com/PondPedia/machine-learning/tree/main/online_prediction/assets)
 
+![astrid](https://github.com/PondPedia/machine-learning/assets/114053967/5dd4d4d7-d433-4167-85e6-bb7a36943f86)
+
 
 **Regression Model:** To predict the optimal fish harvest time, we have built a regression model that takes various factors into account.
 - [Regression Folder](https://github.com/PondPedia/machine-learning/tree/main/online_prediction/assets)
-
-![astrid](https://github.com/PondPedia/machine-learning/assets/114053967/5dd4d4d7-d433-4167-85e6-bb7a36943f86)
-
 
 ![irvandy](https://github.com/PondPedia/machine-learning/assets/114053967/8d1a572b-b698-46fb-b053-db758797f554)
 
@@ -33,15 +32,14 @@ You can access the deployment-ready models and the required supporting files in 
 ## Installation
 To run this project, you will need Python 3.7 or higher and the following libraries:
 
-joblib
-pandas
-numpy
-tensorflow
-Flask
-gunicorn
-scikit-learn
-nltk
-matplotlib
+- joblib
+- pandas
+- numpy
+- tensorflow
+- Flask
+- gunicorn
+- scikit-learn
+- matplotlib
 
 To install these libraries, run the following command:
 
@@ -53,6 +51,7 @@ To install these libraries, run the following command:
 
 ## Contributing
 Contributions to this project are welcome. To contribute, fork the repository and create a pull request with your changes. All pull requests will be reviewed and merged by the project maintainers.
+
 
 ## Additional Note
 We hope that our machine learning solutions will enhance your freshwater aquaculture practices and contribute to the success of your ventures. Happy farming!
